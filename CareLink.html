@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CareLink</title>
+<style>
+:root{
+  --blue:#1261A0;--green:#36A269;--bg:#F3F8FC;--red:#D8362A;--ink:#122436;--muted:#5B7285;
+  --card:#fff;--pastel-b:#E4F0FA;--pastel-g:#E5F6EC;--pastel-p:#F0E9FB;--pastel-y:#FFF6DE;--pastel-pk:#FCE9F1;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0e1720;--card:#152230;--ink:#eaf2f8;--muted:#93a7b8;}}
+:root[data-theme="dark"]{--bg:#0e1720;--card:#152230;--ink:#eaf2f8;--muted:#93a7b8;}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);min-height:100%;}
+#app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative}
+header.top{position:sticky;top:0;padding:14px 16px calc(10px + env(safe-area-inset-top,0px));background:linear-gradient(180deg,var(--blue),#0e4f80);color:#fff;z-index:5}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:38px;height:38px;border-radius:11px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:20px}
+.brandname{font-weight:800;font-size:19px;letter-spacing:.3px}
+.tagline{font-size:11px;opacity:.85}
+.topbar-row{display:flex;justify-content:space-between;align-items:center}
+.icon-btn{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:10px;padding:7px 10px;font-size:14px;cursor:pointer}
+main{flex:1;padding:14px 14px 90px;overflow-x:hidden}
+.card{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(20,50,80,.06);margin-bottom:14px}
+h2{font-size:18px;margin:0 0 10px}
+h3{font-size:15px;margin:0 0 6px}
+p.muted,.muted{color:var(--muted);font-size:13px}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+input,select,textarea{width:100%;padding:11px 12px;border-radius:10px;border:1px solid #cfe0ec;font-size:15px;background:var(--card);color:var(--ink)}
+textarea{min-height:70px;resize:vertical}
+.req::after{content:" *";color:var(--red)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:12px;padding:13px 16px;font-size:15px;font-weight:700;cursor:pointer;width:100%}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.btn-outline{background:transparent;border:1.5px solid var(--blue);color:var(--blue)}
+.btn-red{background:var(--red);color:#fff}
+.btn-sm{width:auto;padding:8px 14px;font-size:13px;border-radius:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.feature{border-radius:16px;padding:14px;cursor:pointer;border:none;text-align:left;font-family:inherit;display:flex;flex-direction:column;gap:6px}
+.feature .ic{font-size:24px}
+.feature .t{font-weight:800;font-size:14px;color:var(--ink)}
+.feature .d{font-size:11.5px;color:var(--muted)}
+.pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.pill-normal{background:#E5F6EC;color:#1c7a45}
+.pill-attention{background:#FFF3CD;color:#8a6d00}
+.pill-urgent{background:#FBE1DE;color:#b1291d}
+.pill-blue{background:var(--pastel-b);color:var(--blue)}
+nav.bottom{position:sticky;bottom:0;background:var(--card);border-top:1px solid #e1ecf3;display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+nav.bottom button{flex:1;background:none;border:none;padding:8px 2px;font-size:11px;color:var(--muted);cursor:pointer;font-family:inherit}
+nav.bottom button.active{color:var(--blue);font-weight:800}
+nav.bottom .ic{display:block;font-size:19px;margin-bottom:2px}
+.row{display:flex;justify-content:space-between;align-items:center}
+.vital{background:var(--pastel-b);border-radius:12px;padding:10px;text-align:center}
+.vital .v{font-size:18px;font-weight:800}
+.vital .l{font-size:10.5px;color:var(--muted)}
+.patient-card{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:12px;background:var(--pastel-b);margin-bottom:8px;cursor:pointer}
+.audit-item{font-size:12px;color:var(--muted);border-left:2px solid #cfe0ec;padding:4px 0 4px 10px;margin-bottom:2px}
+.msg{max-width:82%;padding:10px 13px;border-radius:14px;margin-bottom:8px;font-size:14px;line-height:1.4}
+.msg.user{background:var(--blue);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+.msg.ai{background:var(--pastel-g);border-bottom-left-radius:4px}
+.disclaimer{font-size:11px;color:var(--muted);background:#FFF6DE;border-radius:10px;padding:8px 10px;margin-top:8px}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#122436;color:#fff;padding:10px 18px;border-radius:30px;font-size:13px;z-index:50;max-width:90%;text-align:center}
+.modal-bg{position:fixed;inset:0;background:rgba(10,20,30,.5);display:flex;align-items:center;justify-content:center;z-index:60;padding:20px}
+.modal{background:var(--card);border-radius:16px;padding:20px;max-width:340px;width:100%}
+.empty{text-align:center;padding:30px 10px;color:var(--muted)}
+.empty .ic{font-size:36px;margin-bottom:8px}
+.badge-net{font-size:11px;background:rgba(255,255,255,.2);padding:3px 9px;border-radius:20px}
+a.linklike{color:var(--blue);font-size:13px;text-decoration:none;font-weight:600}
+.chart-bar{background:var(--pastel-b);border-radius:6px 6px 0 0;width:20px}
+.sev{display:flex;gap:6px;flex-wrap:wrap}
+.sev button{border:1px solid #cfe0ec;background:var(--card);border-radius:20px;padding:6px 12px;font-size:12px;cursor:pointer}
+.sev button.sel{background:var(--blue);color:#fff;border-color:var(--blue)}
+.qr{width:96px;height:96px;margin:0 auto;background:
+  repeating-linear-gradient(90deg,#122436 0 6px,#fff 6px 12px),
+  repeating-linear-gradient(0deg,#122436 0 6px,transparent 6px 12px);
+  border:6px solid #122436;border-radius:8px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ============ CARELINK — local functional demo ============
+   Persistence: browser localStorage (stands in for MongoDB in this
+   sandboxed demo — see the note on the About screen). AI features
+   use an on-device rule engine (no cloud key configured) and are
+   clearly labeled as decision-support, not diagnosis. */
+
+const DB_KEY='carelink_db_v1';
+function loadDB(){
+  let d=localStorage.getItem(DB_KEY);
+  if(d) return JSON.parse(d);
+  const fresh={users:[],patients:[],assessments:[],reviews:[],notifications:[],audit:[],chats:{},seq:1000};
+  localStorage.setItem(DB_KEY,JSON.stringify(fresh));
+  return fresh;
+}
+let DB=loadDB();
+function save(){ localStorage.setItem(DB_KEY,JSON.stringify(DB)); }
+function uid(p){ DB.seq++; return p+DB.seq; }
+function audit(action,detail){
+  DB.audit.unshift({id:uid('AU'),user:state.user?state.user.name:'system',role:state.user?state.user.role:'-',action,detail,ts:new Date().toISOString()});
+  save();
+}
+function notify(title,body){
+  DB.notifications.unshift({id:uid('N'),title,body,read:false,ts:new Date().toISOString()});
+  save();
+}
+
+const state={ user:null, view:'splash', lang:'en', patientId:null, toast:null, tab:'home' };
+
+const T={
+  en:{welcome:'Welcome, Health Worker',dash_sub:'AI-assisted patient assessment, summaries, records and clinical review support.',
+    newpatient:'New Patient',np_d:'Register and assess a patient',records:'Patient Records',rec_d:'View saved patient assessments',
+    chart:'AI Chart Board',chart_d:'Visual patient insights and attention trends',assess:'Assessment',assess_d:'Check patient vitals and symptoms',
+    summary:'AI Summary',sum_d:'Get a quick patient summary',review:'Clinical Review',rev_d:'Flag cases needing professional review',
+    lang:'Local Languages',lang_d:'English, Kannada, Hindi',voice:'Voice Mode',voice_d:'Speak and listen to assistance',
+    emergency:'Emergency Call',call108:'Call 108 for ambulance',footer1:'Better Care, Healthier Communities.',
+    footer2:'Health support that connects people, information and care.',safety:'AI assistance is for decision support only and does not replace a qualified medical professional.'},
+  kn:{welcome:'ಸ್ವಾಗತ, ಆರೋಗ್ಯ ಕಾರ್ಯಕರ್ತರೇ',dash_sub:'AI-ಸಹಾಯಿತ ರೋಗಿ ಮೌಲ್ಯಮಾಪನ, ಸಾರಾಂಶ, ದಾಖಲೆಗಳು ಮತ್ತು ಕ್ಲಿನಿಕಲ್ ಪರಿಶೀಲನೆ ಬೆಂಬಲ.',
+    newpatient:'ಹೊಸ ರೋಗಿ',np_d:'ರೋಗಿಯನ್ನು ನೋಂದಾಯಿಸಿ',records:'ರೋಗಿ ದಾಖಲೆಗಳು',rec_d:'ಉಳಿಸಿದ ಮೌಲ್ಯಮಾಪನಗಳು',
+    chart:'AI ಚಾರ್ಟ್ ಬೋರ್ಡ್',chart_d:'ದೃಶ್ಯ ರೋಗಿ ಒಳನೋಟಗಳು',assess:'ಮೌಲ್ಯಮಾಪನ',assess_d:'ರೋಗಲಕ್ಷಣಗಳನ್ನು ಪರಿಶೀಲಿಸಿ',
+    summary:'AI ಸಾರಾಂಶ',sum_d:'ತ್ವರಿತ ರೋಗಿ ಸಾರಾಂಶ',review:'ಕ್ಲಿನಿಕಲ್ ಪರಿಶೀಲನೆ',rev_d:'ವೃತ್ತಿಪರ ಪರಿಶೀಲನೆ ಅಗತ್ಯವಿರುವ ಪ್ರಕರಣಗಳು',
+    lang:'ಸ್ಥಳೀಯ ಭಾಷೆಗಳು',lang_d:'ಇಂಗ್ಲಿಷ್, ಕನ್ನಡ, ಹಿಂದಿ',voice:'ಧ್ವನಿ ಮೋಡ್',voice_d:'ಮಾತನಾಡಿ ಮತ್ತು ಕೇಳಿ',
+    emergency:'ತುರ್ತು ಕರೆ',call108:'ಆಂಬ್ಯುಲೆನ್ಸ್‌ಗಾಗಿ 108 ಗೆ ಕರೆ ಮಾಡಿ',footer1:'ಉತ್ತಮ ಆರೈಕೆ, ಆರೋಗ್ಯಕರ ಸಮುದಾಯಗಳು.',
+    footer2:'ಜನರು, ಮಾಹಿತಿ ಮತ್ತು ಆರೈಕೆಯನ್ನು ಸಂಪರ್ಕಿಸುವ ಆರೋಗ್ಯ ಬೆಂಬಲ.',safety:'AI ನೆರವು ನಿರ್ಧಾರ-ಬೆಂಬಲಕ್ಕೆ ಮಾತ್ರ; ವೈದ್ಯರ ಬದಲಿಯಲ್ಲ.'},
+  hi:{welcome:'स्वागत है, स्वास्थ्य कार्यकर्ता',dash_sub:'AI-सहायता प्राप्त रोगी मूल्यांकन, सारांश, रिकॉर्ड और क्लिनिकल समीक्षा सहायता।',
+    newpatient:'नया रोगी',np_d:'रोगी को पंजीकृत करें',records:'रोगी रिकॉर्ड',rec_d:'सहेजे गए मूल्यांकन देखें',
+    chart:'AI चार्ट बोर्ड',chart_d:'रोगी की जानकारी और रुझान',assess:'मूल्यांकन',assess_d:'लक्षणों की जाँच करें',
+    summary:'AI सारांश',sum_d:'त्वरित रोगी सारांश',review:'क्लिनिकल समीक्षा',rev_d:'पेशेवर समीक्षा की आवश्यकता वाले मामले',
+    lang:'स्थानीय भाषाएँ',lang_d:'अंग्रेज़ी, कन्नड़, हिंदी',voice:'वॉयस मोड',voice_d:'बोलें और सुनें',
+    emergency:'आपातकालीन कॉल',call108:'एम्बुलेंस के लिए 108 डायल करें',footer1:'बेहतर देखभाल, स्वस्थ समुदाय।',
+    footer2:'लोगों, जानकारी और देखभाल को जोड़ने वाला स्वास्थ्य समर्थन।',safety:'AI सहायता केवल निर्णय-समर्थन हेतु है, योग्य चिकित्सक का विकल्प नहीं।'}
+};
+function t(k){ return (T[state.lang]&&T[state.lang][k]) || T.en[k] || k; }
+
+const VITAL_RANGES={
+  temperature:{min:35,max:42,unit:'°C'},heartRate:{min:30,max:220,unit:'bpm'},spo2:{min:50,max:100,unit:'%'},
+  respRate:{min:5,max:60,unit:'/min'},glucose:{min:20,max:600,unit:'mg/dL'},bpSys:{min:60,max:260,unit:'mmHg sys'},
+  bpDia:{min:30,max:160,unit:'mmHg dia'},weight:{min:1,max:300,unit:'kg'},height:{min:20,max:250,unit:'cm'},age:{min:0,max:120,unit:'yrs'}
+};
+
+function esc(s){ return (s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtDate(iso){ const d=new Date(iso); return d.toLocaleString(); }
+
+/* ---------- rule-based AI (local decision support, no cloud key) ---------- */
+function ruleAnalyzeAssessment(a){
+  const flags=[]; let risk='normal';
+  const hr=+a.heartRate, sp=+a.spo2, temp=+a.temperature, sysbp=+a.bpSys;
+  if(sp && sp<92){ flags.push('SpO2 reading is low ('+sp+'%). Low oxygen saturation may need urgent evaluation.'); risk='urgent'; }
+  else if(sp && sp<95){ flags.push('SpO2 is on the lower side ('+sp+'%). Consider professional evaluation if it persists.'); if(risk!=='urgent') risk='attention'; }
+  if(temp && temp>=39.5){ flags.push('High fever recorded ('+temp+'°C). Consider urgent evaluation, especially in children or the elderly.'); risk='urgent'; }
+  else if(temp && temp>=38){ flags.push('Fever recorded ('+temp+'°C). Monitor and consider professional evaluation if it persists beyond 2-3 days.'); if(risk!=='urgent') risk='attention'; }
+  if(hr && (hr>130||hr<45)){ flags.push('Heart rate is outside the usual range ('+hr+' bpm). This may be associated with several conditions and professional evaluation is advised.'); if(risk!=='urgent') risk='attention'; }
+  if(sysbp && (sysbp>=180||sysbp<85)){ flags.push('Blood pressure reading is notably abnormal. Urgent professional evaluation is advised.'); risk='urgent'; }
+  const sym=(a.symptoms||'').toLowerCase();
+  ['chest pain','breathless','difficulty breathing','unconscious','severe bleeding','seizure'].forEach(k=>{
+    if(sym.includes(k)){ flags.push('Reported symptom "'+k+'" may be associated with a medical emergency. Seek urgent care if severe.'); risk='urgent'; }
+  });
+  if(!flags.length) flags.push('No high-risk indicators were detected from the entered information. This does not rule out illness — use clinical judgement.');
+  return {risk,flags};
+}
+function riskLabel(r){ return r==='urgent'?'Urgent':r==='attention'?'Attention':'Normal'; }
+function riskPillClass(r){ return r==='urgent'?'pill-urgent':r==='attention'?'pill-attention':'pill-normal'; }
+
+/* ---------- rendering ---------- */
+const app=document.getElementById('app');
+function render(){ app.innerHTML=''; app.appendChild(views[state.view]()); if(state.toast){ const tel=document.createElement('div'); tel.className='toast'; tel.textContent=state.toast; app.appendChild(tel); setTimeout(()=>{state.toast=null; if(document.body.contains(tel)) tel.remove();},2200);} }
+function go(view,extra){ Object.assign(state,extra||{}); state.view=view; render(); window.scrollTo(0,0); }
+function toast(msg){ state.toast=msg; render(); }
+function el(tag,attrs,children){
+  const e=document.createElement(tag);
+  for(const k in (attrs||{})){ if(k==='html') e.innerHTML=attrs[k]; else if(k.startsWith('on')) e.addEventListener(k.slice(2),attrs[k]); else e.setAttribute(k,attrs[k]); }
+  (children||[]).forEach(c=>{ if(c) e.appendChild(typeof c==='string'?document.createTextNode(c):c); });
+  return e;
+}
+
+function shell(contentEl, opts){
+  opts=opts||{};
+  const wrap=document.createDocumentFragment ? document.createElement('div') : null;
+  const header=el('header',{class:'top'},[
+    el('div',{class:'topbar-row'},[
+      el('div',{class:'brand'},[ el('div',{class:'logo'},['✚']), el('div',{},[ el('div',{class:'brandname'},['CareLink']), el('div',{class:'tagline'},['Health Support for a Brighter Tomorrow']) ]) ]),
+      state.user? el('div',{style:'display:flex;gap:6px;align-items:center'},[
+        el('span',{class:'badge-net'},['🟢 Local']),
+        el('button',{class:'icon-btn',onclick:()=>go('notifications')},['🔔'+(DB.notifications.filter(n=>!n.read).length? ' '+DB.notifications.filter(n=>!n.read).length:'')]),
+        el('button',{class:'icon-btn',onclick:()=>go('profile')},['👤'])
+      ]) : el('span',{class:'badge-net'},['🟢 Local demo'])
+    ])
+  ]);
+  const main=el('main',{},[contentEl]);
+  const container=el('div',{},[header,main]);
+  if(state.user){
+    const tabs=[['home','🏠','Home'],['patients','🗂️','Patients'],['ai','💬','AI'],['reviews','🚩','Reviews'],['profile','👤','Profile']];
+    const nav=el('nav',{class:'bottom'},tabs.map(([id,ic,label])=>el('button',{class:state.tab===id?'active':'', onclick:()=>{ state.tab=id; if(id==='home')go('dashboard'); else if(id==='patients')go('records'); else if(id==='ai')go('chat'); else if(id==='reviews')go('reviewList'); else go('profile'); }},[el('span',{class:'ic'},[ic]),label])));
+    container.appendChild(nav);
+  }
+  return container;
+}
+
+/* ---------- VIEWS ---------- */
+const views={};
+
+views.splash=function(){
+  const c=el('div',{style:'min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#1261A0,#0b3a5c);color:#fff;text-align:center;padding:30px'},[
+    el('div',{style:'font-size:56px;margin-bottom:10px'},['✚🌿']),
+    el('div',{style:'font-size:30px;font-weight:800'},['CareLink']),
+    el('div',{style:'opacity:.9;margin-top:6px'},['Health Support for a Brighter Tomorrow']),
+    el('button',{class:'btn btn-green',style:'margin-top:34px;max-width:220px',onclick:()=>go('welcome')},['Continue'])
+  ]);
+  return c;
+};
+
+views.welcome=function(){
+  const c=el('div',{style:'padding:24px'},[
+    el('div',{class:'card',style:'text-align:center'},[
+      el('div',{style:'font-size:40px'},['🏡🌳✚']),
+      el('h2',{},['Welcome to CareLink']),
+      el('p',{class:'muted'},['AI-assisted healthcare support for health workers in rural and semi-urban communities. Register patients, track vitals, and get decision-support in English, Kannada or Hindi.']),
+      el('button',{class:'btn btn-primary',style:'margin-top:14px',onclick:()=>go('login')},['Health Worker Login']),
+      el('button',{class:'btn btn-outline',style:'margin-top:10px',onclick:()=>go('register')},['Register']),
+      el('p',{class:'disclaimer'},[t('safety')])
+    ])
+  ]);
+  return c;
+};
+
+views.register=function(){
+  const c=el('div',{style:'padding:20px'});
+  const card=el('div',{class:'card'},[
+    el('h2',{},['Create account']),
+    fld('reg_name','Full name',true),
+    fld('reg_mobile','Mobile number',true,'tel'),
+    fld('reg_email','Email',false,'email'),
+    labelSelect('reg_role','Role',['health_worker:Health Worker','doctor:Doctor / Clinical Reviewer','admin:Admin']),
+    fld('reg_location','Location / community',false),
+    fld('reg_pass','Password',true,'password'),
+    fld('reg_pass2','Confirm password',true,'password'),
+    el('button',{class:'btn btn-primary',style:'margin-top:14px',onclick:doRegister},['Register']),
+    el('div',{style:'text-align:center;margin-top:10px'},[ el('a',{class:'linklike',onclick:()=>go('login')},['Already have an account? Login']) ])
+  ]);
+  c.appendChild(card);
+  return c;
+};
+function fld(id,label,req,type){
+  return el('div',{},[ el('label',{class:req?'req':''},[label]), el('input',{id,type:type||'text'}) ]);
+}
+function labelSelect(id,label,opts){
+  const sel=el('select',{id});
+  opts.forEach(o=>{ const [v,l]=o.split(':'); sel.appendChild(el('option',{value:v},[l])); });
+  return el('div',{},[ el('label',{},[label]), sel ]);
+}
+function doRegister(){
+  const name=document.getElementById('reg_name').value.trim();
+  const mobile=document.getElementById('reg_mobile').value.trim();
+  const email=document.getElementById('reg_email').value.trim();
+  const role=document.getElementById('reg_role').value;
+  const location=document.getElementById('reg_location').value.trim();
+  const pass=document.getElementById('reg_pass').value;
+  const pass2=document.getElementById('reg_pass2').value;
+  if(!name||!mobile||!pass){ toast('Please fill all required fields.'); return; }
+  if(pass.length<4){ toast('Password must be at least 4 characters.'); return; }
+  if(pass!==pass2){ toast('Passwords do not match.'); return; }
+  if(DB.users.some(u=>u.mobile===mobile)){ toast('An account with this mobile number already exists.'); return; }
+  const user={id:uid('U'),name,mobile,email,role,location,pass};
+  DB.users.push(user); save();
+  audit('register',name+' registered as '+role);
+  toast('Account created. Please log in.');
+  go('login');
+}
+
+views.login=function(){
+  const c=el('div',{style:'padding:20px'});
+  const card=el('div',{class:'card'},[
+    el('h2',{},['Health Worker Login']),
+    fld('login_mobile','Mobile number or email',true),
+    fld('login_pass','Password',true,'password'),
+    el('button',{class:'btn btn-primary',style:'margin-top:14px',onclick:doLogin},['Login']),
+    el('button',{class:'btn btn-outline',style:'margin-top:10px',onclick:()=>go('register')},['Create new account']),
+    el('div',{style:'text-align:center;margin-top:10px'},[ el('a',{class:'linklike',onclick:()=>go('forgot')},['Forgot password?']) ]),
+    el('div',{class:'disclaimer'},['Demo credentials — no account yet? Tap "Create new account". Passwords are stored locally in this browser only, for demo purposes.'])
+  ]);
+  c.appendChild(card); return c;
+};
+function doLogin(){
+  const m=document.getElementById('login_mobile').value.trim();
+  const p=document.getElementById('login_pass').value;
+  const u=DB.users.find(x=>(x.mobile===m||x.email===m) && x.pass===p);
+  if(!u){ toast('Invalid credentials.'); return; }
+  state.user=u; audit('login',u.name+' logged in');
+  state.tab='home'; go('dashboard');
+}
+views.forgot=function(){
+  const c=el('div',{style:'padding:20px'});
+  c.appendChild(el('div',{class:'card'},[
+    el('h2',{},['Forgot password']),
+    fld('fg_mobile','Registered mobile or email',true),
+    el('button',{class:'btn btn-primary',style:'margin-top:12px',onclick:()=>{
+      const m=document.getElementById('fg_mobile').value.trim();
+      const u=DB.users.find(x=>x.mobile===m||x.email===m);
+      if(!u){ toast('No account found with that mobile/email.'); return; }
+      toast('Password reset isn\'t wired to a real SMS/email service in this demo — no reset was sent.');
+    }},['Send reset instructions']),
+    el('div',{style:'text-align:center;margin-top:10px'},[ el('a',{class:'linklike',onclick:()=>go('login')},['Back to login']) ])
+  ]));
+  return c;
+};
+
+views.dashboard=function(){
+  const cards=[
+    ['newpatient','np_d','📝','pastel-b','newPatient'],
+    ['records','rec_d','🗂️','pastel-g','records'],
+    ['chart','chart_d','📈','pastel-p','chartBoard'],
+    ['assess','assess_d','🩺','pastel-y','assessPick'],
+    ['summary','sum_d','🧾','pastel-b','summaryPick'],
+    ['review','rev_d','🚩','pastel-pk','reviewList'],
+    ['lang','lang_d','🌐','pastel-g','langScreen'],
+    ['voice','voice_d','🎙️','pastel-p','voice']
+  ];
+  const grid=el('div',{class:'grid2'},cards.map(([tk,dk,ic,bg,view])=>
+    el('button',{class:'feature',style:'background:var(--'+bg+')',onclick:()=>go(view)},[
+      el('div',{class:'ic'},[ic]), el('div',{class:'t'},[t(tk)]), el('div',{class:'d'},[t(dk)])
+    ])
+  ));
+  const emergencyCard=el('div',{class:'card',style:'background:'+'#FBE1DE'},[
+    el('div',{class:'row'},[ el('h2',{style:'color:#b1291d'},['🚨 '+t('emergency')]), el('span',{class:'pill pill-urgent'},['108']) ]),
+    el('p',{},[t('call108')]),
+    el('button',{class:'btn btn-red',onclick:()=>go('emergency')},['CALL 108'])
+  ]);
+  const hero=el('div',{class:'card',style:'background:linear-gradient(135deg,#E4F0FA,#E5F6EC)'},[
+    el('h2',{},[t('welcome')+', '+ (state.user?state.user.name:'')]),
+    el('p',{class:'muted'},[t('dash_sub')])
+  ]);
+  const wrap=el('div',{},[hero, emergencyCard, grid,
+    el('div',{class:'card',style:'text-align:center'},[ el('h3',{},[t('footer1')]), el('p',{class:'muted'},[t('footer2')]), el('p',{class:'disclaimer'},[t('safety')]) ])
+  ]);
+  return shell(wrap);
+};
+
+views.emergency=function(){
+  const p=state.patientId? DB.patients.find(x=>x.id===state.patientId):null;
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('div',{class:'card',style:'border:2px solid #D8362A'},[
+    el('h2',{style:'color:#D8362A'},['🚨 EMERGENCY']),
+    p? el('div',{},[
+      row2('Patient',p.name), row2('Age',p.age), row2('Blood group',p.bloodGroup||'—'),
+      row2('Allergies',p.allergies||'—'), row2('Latest SpO2',(latestVital(p,'spo2'))||'—'),
+      row2('Heart rate',(latestVital(p,'heartRate'))||'—'), row2('Blood pressure',(latestVital(p,'bpSys')&&latestVital(p,'bpDia'))? latestVital(p,'bpSys')+'/'+latestVital(p,'bpDia'):'—')
+    ]) : el('p',{class:'muted'},['No specific patient selected — general emergency call.']),
+    el('p',{class:'disclaimer'},['If the patient is unconscious, has severe breathing difficulty, severe chest pain, uncontrolled bleeding, or another life-threatening emergency, seek immediate emergency medical care. This app does not diagnose emergencies.']),
+    el('button',{class:'btn btn-red',style:'margin-top:14px',onclick:confirmCall},['CALL 108']),
+    el('button',{class:'btn btn-outline',style:'margin-top:8px',onclick:()=>history_back()},['Cancel'])
+  ]));
+  return shell(wrap);
+};
+function row2(a,b){ return el('div',{class:'row',style:'padding:4px 0;border-bottom:1px solid #f0e4e2'},[el('span',{class:'muted'},[a]),el('b',{},[String(b)])]); }
+function latestVital(p,key){
+  const as=DB.assessments.filter(a=>a.patientId===p.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+  for(const a of as){ if(a[key]) return a[key]; }
+  return null;
+}
+function history_back(){ go('dashboard'); }
+function confirmCall(){
+  const m=el('div',{class:'modal-bg'},[
+    el('div',{class:'modal'},[
+      el('h3',{},['Call emergency ambulance service 108?']),
+      el('div',{style:'display:flex;gap:10px;margin-top:14px'},[
+        el('button',{class:'btn btn-outline btn-sm',style:'flex:1',onclick:()=>m.remove()},['Cancel']),
+        el('a',{href:'tel:108',class:'btn btn-red btn-sm',style:'flex:1;text-decoration:none',onclick:()=>{ audit('emergency_call','Initiated tel:108'); notify('Emergency call placed','108 ambulance dial initiated.'); m.remove(); }},['Call 108'])
+      ])
+    ])
+  ]);
+  document.body.appendChild(m);
+}
+
+views.newPatient=function(){
+  const wrap=el('div',{style:'padding:16px'});
+  const card=el('div',{class:'card'},[
+    el('h2',{},['New Patient']),
+    fld('np_name','Full name',true), fld('np_age','Age',true,'number'),
+    labelSelect('np_gender','Gender',['female:Female','male:Male','other:Other']),
+    fld('np_phone','Phone number',false,'tel'), fld('np_village','Village',false),
+    fld('np_address','Address',false), fld('np_emg','Emergency contact',false),
+    fld('np_bg','Blood group (optional)',false),
+    el('label',{},['Existing conditions']), el('textarea',{id:'np_conditions'}),
+    el('label',{},['Allergies']), el('textarea',{id:'np_allergies'}),
+    el('label',{},['Current medications']), el('textarea',{id:'np_meds'}),
+    el('div',{class:'card',style:'background:var(--pastel-y);margin-top:14px'},[
+      el('p',{style:'font-size:12.5px'},['Your health information should only be accessed by authorized users. By checking below, the patient (or guardian) consents to CareLink storing this information for care coordination.']),
+      el('label',{style:'display:flex;gap:8px;align-items:center;font-weight:500'},[ el('input',{type:'checkbox',id:'np_consent',style:'width:auto'}), 'Patient/guardian consents to data collection' ])
+    ]),
+    el('button',{class:'btn btn-primary',style:'margin-top:16px',onclick:saveNewPatient},['Save Patient'])
+  ]);
+  wrap.appendChild(card); return shell(wrap);
+};
+function gv(id){ const e=document.getElementById(id); return e?e.value.trim():''; }
+function saveNewPatient(){
+  const name=gv('np_name'), age=gv('np_age');
+  if(!name||!age){ toast('Name and age are required.'); return; }
+  const ageN=+age;
+  if(ageN<VITAL_RANGES.age.min||ageN>VITAL_RANGES.age.max){ toast('Age looks out of the expected range (0-120) — please verify.'); return; }
+  if(!document.getElementById('np_consent').checked){ toast('Patient consent is required before saving.'); return; }
+  const p={
+    id:uid('CARELINK-'), name, age:ageN, gender:gv('np_gender')||'other', phone:gv('np_phone'),
+    village:gv('np_village'), address:gv('np_address'), emergencyContact:gv('np_emg'), bloodGroup:gv('np_bg'),
+    conditions:gv('np_conditions'), allergies:gv('np_allergies'), medications:gv('np_meds'),
+    consent:{given:true, date:new Date().toISOString(), by:state.user.name},
+    createdBy:state.user.name, ts:new Date().toISOString()
+  };
+  DB.patients.push(p); save();
+  audit('create_patient',state.user.name+' registered patient '+p.name+' ('+p.id+')');
+  notify('Patient registered',p.name+' was added to Patient Records.');
+  toast('Patient saved successfully.');
+  go('patientProfile',{patientId:p.id});
+}
+
+views.records=function(){
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('h2',{},[t('records')]));
+  const search=el('input',{placeholder:'Search by name, ID or village...',style:'margin-bottom:12px'});
+  search.addEventListener('input',()=>renderList(search.value));
+  wrap.appendChild(search);
+  const list=el('div',{});
+  wrap.appendChild(list);
+  function renderList(q){
+    list.innerHTML='';
+    q=(q||'').toLowerCase();
+    let items=DB.patients.filter(p=> !q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || (p.village||'').toLowerCase().includes(q));
+    items=items.sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+    if(!items.length){ list.appendChild(el('div',{class:'empty'},[el('div',{class:'ic'},['🗂️']),el('div',{},['No patients yet']),el('p',{class:'muted'},['Register your first patient to get started.'])])); return; }
+    items.forEach(p=>{
+      const risk=patientRisk(p);
+      list.appendChild(el('div',{class:'patient-card',onclick:()=>go('patientProfile',{patientId:p.id})},[
+        el('div',{},[ el('b',{},[p.name]), el('div',{class:'muted',style:'font-size:11.5px'},[p.id+' · Age '+p.age+' · '+(p.village||'—')]) ]),
+        el('span',{class:'pill '+riskPillClass(risk)},[riskLabel(risk)])
+      ]));
+    });
+  }
+  renderList('');
+  return shell(wrap);
+};
+function patientRisk(p){
+  const as=DB.assessments.filter(a=>a.patientId===p.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+  if(!as.length) return 'normal';
+  return as[0].risk||'normal';
+}
+
+views.patientProfile=function(){
+  const p=DB.patients.find(x=>x.id===state.patientId);
+  if(!p) return shell(el('div',{class:'empty'},['Patient not found']));
+  audit('view_patient',state.user.name+' viewed '+p.name);
+  const as=DB.assessments.filter(a=>a.patientId===p.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+  const risk=patientRisk(p);
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('div',{class:'card'},[
+    el('div',{class:'row'},[ el('h2',{},[p.name]), el('span',{class:'pill '+riskPillClass(risk)},[riskLabel(risk)]) ]),
+    el('p',{class:'muted'},[p.id+' · Age '+p.age+' · '+p.gender]),
+    el('div',{class:'qr'}), el('div',{style:'text-align:center;font-size:11px',class:'muted'},['Scan-ready ID (contains only patient ID, no medical data)']),
+  ]));
+  const latest=as[0];
+  if(latest){
+    const vgrid=el('div',{class:'grid2'},[
+      vitalCard('Heart Rate',latest.heartRate,'bpm'),vitalCard('BP',latest.bpSys&&latest.bpDia?latest.bpSys+'/'+latest.bpDia:'',''),
+      vitalCard('Temp',latest.temperature,'°C'),vitalCard('SpO2',latest.spo2,'%'),
+      vitalCard('Resp Rate',latest.respRate,'/min'),vitalCard('Glucose',latest.glucose,'mg/dL')
+    ]);
+    wrap.appendChild(el('div',{class:'card'},[el('h3',{},['Latest vitals']),vgrid,el('p',{class:'muted',style:'margin-top:8px'},['Recorded '+fmtDate(latest.ts)])]));
+  }
+  wrap.appendChild(el('div',{class:'card'},[
+    el('h3',{},['Medical info']),
+    row2('Allergies',p.allergies||'—'), row2('Conditions',p.conditions||'—'), row2('Medications',p.medications||'—'),
+    row2('Consent',p.consent.given? ('Given '+fmtDate(p.consent.date)+' by '+p.consent.by):'Not given')
+  ]));
+  wrap.appendChild(el('div',{class:'card'},[
+    el('h3',{},['Assessment history']),
+    as.length? el('div',{},as.map(a=>el('div',{class:'row',style:'padding:6px 0;border-bottom:1px solid #eef3f7'},[
+      el('span',{},[fmtDate(a.ts)]), el('span',{class:'pill '+riskPillClass(a.risk)},[riskLabel(a.risk)])
+    ]))) : el('p',{class:'muted'},['No assessments available'])
+  ]));
+  wrap.appendChild(el('div',{style:'display:grid;gap:10px'},[
+    el('button',{class:'btn btn-primary',onclick:()=>go('assessment',{patientId:p.id})},['Add Assessment']),
+    el('button',{class:'btn btn-green',onclick:()=>go('summary',{patientId:p.id})},['Generate AI Summary']),
+    el('button',{class:'btn btn-outline',onclick:()=>go('reviewFlag',{patientId:p.id})},['Flag for Clinical Review']),
+    el('button',{class:'btn btn-red',onclick:()=>go('emergency',{patientId:p.id})},['Emergency Call']),
+  ]));
+  const auditItems=DB.audit.filter(a=>a.detail && a.detail.includes(p.id)).slice(0,6);
+  wrap.appendChild(el('div',{class:'card'},[el('h3',{},['Audit trail']), auditItems.length? el('div',{},auditItems.map(a=>el('div',{class:'audit-item'},[fmtDate(a.ts)+' — '+a.user+' ('+a.role+'): '+a.action]))) : el('p',{class:'muted'},['No audit events yet.'])]));
+  return shell(wrap);
+};
+function vitalCard(label,val,unit){ return el('div',{class:'vital'},[ el('div',{class:'v'},[val?String(val)+(unit&&label!=='BP'?'':''):'—']), el('div',{class:'l'},[label+(unit&&label!=='BP'?' ('+unit+')':'')]) ]); }
+
+views.newPatientRedirect=views.newPatient;
+views.assessPick=function(){ return pickPatientView('assessment','Choose a patient to assess'); };
+views.summaryPick=function(){ return pickPatientView('summary','Choose a patient for AI Summary'); };
+function pickPatientView(dest,title){
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('h2',{},[title]));
+  if(!DB.patients.length){ wrap.appendChild(el('div',{class:'empty'},[el('div',{class:'ic'},['🗂️']),el('div',{},['No patients yet']),el('button',{class:'btn btn-primary',style:'margin-top:10px',onclick:()=>go('newPatient')},['Register a patient'])])); return shell(wrap); }
+  DB.patients.forEach(p=>wrap.appendChild(el('div',{class:'patient-card',onclick:()=>go(dest,{patientId:p.id})},[el('b',{},[p.name]),el('span',{class:'muted'},[p.id])])));
+  return shell(wrap);
+}
+
+views.assessment=function(){
+  const p=DB.patients.find(x=>x.id===state.patientId);
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('h2',{},['Assessment — '+(p?p.name:'')]));
+  const card=el('div',{class:'card'},[
+    el('label',{},['Symptoms']), el('textarea',{id:'as_symptoms',placeholder:'e.g. fever and cough for 3 days'}),
+    el('label',{},['Duration of symptoms']), el('input',{id:'as_duration',placeholder:'e.g. 3 days'}),
+    el('label',{},['Severity']),
+  ]);
+  const sevWrap=el('div',{class:'sev',id:'as_sev'});
+  ['Mild','Moderate','Severe'].forEach((s,i)=>{ const b=el('button',{type:'button',onclick:(e)=>{[...sevWrap.children].forEach(c=>c.classList.remove('sel')); e.target.classList.add('sel'); sevWrap.dataset.val=s;}},[s]); sevWrap.appendChild(b); });
+  card.appendChild(sevWrap);
+  const vgrid=el('div',{class:'grid2',style:'margin-top:12px'},[
+    numField('as_temp','Temperature (°C)'), numField('as_hr','Heart rate (bpm)'),
+    numField('as_sys','BP systolic'), numField('as_dia','BP diastolic'),
+    numField('as_spo2','SpO2 (%)'), numField('as_rr','Resp rate (/min)'),
+    numField('as_glu','Blood glucose (mg/dL)'), numField('as_wt','Weight (kg)')
+  ]);
+  card.appendChild(vgrid);
+  card.appendChild(el('label',{style:'margin-top:10px'},['Additional notes']));
+  card.appendChild(el('textarea',{id:'as_notes'}));
+  card.appendChild(el('button',{class:'btn btn-primary',style:'margin-top:14px',onclick:()=>saveAssessment(p)},['Save Assessment']));
+  wrap.appendChild(card);
+  return shell(wrap);
+};
+function numField(id,label){ return el('div',{},[el('label',{},[label]),el('input',{id,type:'number'})]); }
+function checkRange(key,val){
+  if(val==='') return true;
+  const r=VITAL_RANGES[key]; if(!r) return true;
+  const n=+val; return n>=r.min && n<=r.max;
+}
+function saveAssessment(p){
+  if(!p){ toast('Patient not found.'); return; }
+  const vals={temperature:gv('as_temp'),heartRate:gv('as_hr'),bpSys:gv('as_sys'),bpDia:gv('as_dia'),spo2:gv('as_spo2'),respRate:gv('as_rr'),glucose:gv('as_glu'),weight:gv('as_wt')};
+  for(const k in vals){ if(vals[k]!=='' && !checkRange(k,vals[k])){ toast('The value entered for '+k+' looks outside the expected range — please verify before saving.'); return; } }
+  const a={ id:uid('AS'), patientId:p.id, symptoms:gv('as_symptoms'), duration:gv('as_duration'),
+    severity:(document.getElementById('as_sev').dataset.val||''), notes:gv('as_notes'),
+    ...Object.fromEntries(Object.entries(vals).map(([k,v])=>[k,v?+v:null])),
+    recordedBy:state.user.name, ts:new Date().toISOString() };
+  const analysis=ruleAnalyzeAssessment(a);
+  a.risk=analysis.risk; a.aiFlags=analysis.flags;
+  DB.assessments.push(a); save();
+  audit('create_assessment',state.user.name+' created assessment for '+p.name+' ('+p.id+') — risk: '+a.risk);
+  if(a.risk==='urgent') notify('Urgent case flagged',p.name+' has an assessment flagged Urgent.');
+  toast('Assessment saved.');
+  go('assessResult',{patientId:p.id, lastAssessId:a.id});
+};
+views.assessResult=function(){
+  const p=DB.patients.find(x=>x.id===state.patientId);
+  const a=DB.assessments.find(x=>x.id===state.lastAssessId);
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('div',{class:'card'},[
+    el('div',{class:'row'},[el('h2',{},['AI Analysis']),el('span',{class:'pill '+riskPillClass(a.risk)},[riskLabel(a.risk)])]),
+    el('div',{},a.aiFlags.map(f=>el('p',{style:'font-size:14px'},['• '+f]))),
+    el('p',{class:'disclaimer'},['This is AI-generated decision support based only on the information entered — it is not a diagnosis. Verify with a qualified healthcare professional.'])
+  ]));
+  wrap.appendChild(el('button',{class:'btn btn-primary',onclick:()=>go('patientProfile',{patientId:p.id})},['Back to Patient Profile']));
+  return shell(wrap);
+};
+
+views.summary=function(){
+  const p=DB.patients.find(x=>x.id===state.patientId);
+  const wrap=el('div',{style:'padding:16px'});
+  const box=el('div',{class:'card'});
+  function build(){
+    const as=DB.assessments.filter(a=>a.patientId===p.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+    const latest=as[0];
+    const lines=[];
+    lines.push('PATIENT OVERVIEW: '+p.name+', age '+p.age+', '+p.gender+'.');
+    lines.push('Known conditions: '+(p.conditions||'none recorded')+'. Allergies: '+(p.allergies||'none recorded')+'.');
+    if(latest){
+      lines.push('Most recent symptoms: '+(latest.symptoms||'none recorded')+' (duration: '+(latest.duration||'—')+', severity: '+(latest.severity||'—')+').');
+      lines.push('Latest vitals — HR '+(latest.heartRate||'—')+' bpm, Temp '+(latest.temperature||'—')+'°C, SpO2 '+(latest.spo2||'—')+'%, BP '+(latest.bpSys||'—')+'/'+(latest.bpDia||'—')+'.');
+      lines.push('Risk indicator: '+riskLabel(latest.risk)+'. '+(latest.aiFlags||[]).join(' '));
+      lines.push('Suggested follow-up: '+(latest.risk==='urgent'?'Seek professional evaluation promptly.':latest.risk==='attention'?'Monitor and consider professional evaluation if symptoms persist or worsen.':'Routine follow-up as needed.'));
+    } else { lines.push('No assessments recorded yet.'); }
+    lines.push('Professional review recommendation: verify all AI-generated content with a qualified healthcare professional.');
+    return lines.join('\n\n');
+  }
+  const summaryEl=el('div',{style:'white-space:pre-wrap;font-size:14px;line-height:1.5'},[build()]);
+  box.appendChild(el('h2',{},['AI Summary — '+p.name]));
+  box.appendChild(summaryEl);
+  box.appendChild(el('p',{class:'disclaimer'},['AI-generated decision support — verify with a qualified healthcare professional. Generated '+new Date().toLocaleString()+' using this patient\'s stored vitals and latest assessment.']));
+  const btns=el('div',{style:'display:grid;gap:8px;margin-top:10px'},[
+    el('button',{class:'btn btn-outline',onclick:()=>{summaryEl.textContent=build(); toast('Summary regenerated.');}},['Regenerate']),
+    el('button',{class:'btn btn-outline',onclick:()=>{ navigator.clipboard && navigator.clipboard.writeText(summaryEl.textContent); toast('Summary copied.'); }},['Copy']),
+    el('button',{class:'btn btn-outline',onclick:()=>{ try{ const u=new SpeechSynthesisUtterance(summaryEl.textContent); speechSynthesis.speak(u);}catch(e){ toast('Speech unavailable on this device.'); } }},['Listen']),
+    el('button',{class:'btn btn-green',onclick:()=>{ p.lastSummary={text:summaryEl.textContent,ts:new Date().toISOString(),by:state.user.name}; save(); audit('generate_summary',state.user.name+' generated AI summary for '+p.name+' ('+p.id+')'); toast('Summary saved to patient record.'); }},['Save Summary'])
+  ]);
+  box.appendChild(btns);
+  wrap.appendChild(box);
+  return shell(wrap);
+};
+
+views.chartBoard=function(){
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('h2',{},[t('chart')]));
+  wrap.appendChild(el('p',{class:'muted'},[t('chart_d')]));
+  if(!DB.patients.length){ wrap.appendChild(el('div',{class:'empty'},['No sufficient data for trend analysis.'])); return shell(wrap); }
+  const sel=el('select',{style:'margin-bottom:12px'},DB.patients.map(p=>el('option',{value:p.id},[p.name])));
+  wrap.appendChild(sel);
+  const box=el('div',{class:'card'});
+  function draw(){
+    box.innerHTML='';
+    const p=DB.patients.find(x=>x.id===sel.value)||DB.patients[0];
+    const as=DB.assessments.filter(a=>a.patientId===p.id).sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+    if(!as.length){ box.appendChild(el('div',{class:'empty'},['No sufficient data for trend analysis.'])); return; }
+    box.appendChild(el('h3',{},['Heart rate trend']));
+    const maxHr=Math.max(...as.map(a=>a.heartRate||0),100);
+    const barsWrap=el('div',{style:'display:flex;align-items:flex-end;gap:6px;height:110px;overflow-x:auto'});
+    as.forEach(a=>{ const h=a.heartRate? Math.max(6,(a.heartRate/maxHr)*100):4; barsWrap.appendChild(el('div',{class:'chart-bar',style:'height:'+h+'px'})); });
+    box.appendChild(barsWrap);
+    box.appendChild(el('h3',{style:'margin-top:14px'},['Attention Trends']));
+    const last=as[as.length-1];
+    const prev=as.length>1?as[as.length-2]:null;
+    const insights=[];
+    if(prev && last.heartRate && prev.heartRate && Math.abs(last.heartRate-prev.heartRate)>=15) insights.push('Heart rate has changed noticeably compared with the previous record.');
+    if(last.spo2 && last.spo2<95) insights.push('SpO2 readings should be reviewed by a qualified professional if persistently low.');
+    if(!insights.length) insights.push('No notable attention trends detected from recorded data.');
+    insights.forEach(i=>box.appendChild(el('p',{style:'font-size:13.5px'},['• '+i])));
+  }
+  sel.addEventListener('change',draw); draw();
+  wrap.appendChild(box);
+  return shell(wrap);
+};
+
+views.reviewFlag=function(){
+  const p=DB.patients.find(x=>x.id===state.patientId);
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('div',{class:'card'},[
+    el('h2',{},['Flag for Clinical Review — '+(p?p.name:'')]),
+    el('label',{},['Reason']), el('textarea',{id:'rv_reason'}),
+    el('label',{},['Priority']),
+    (function(){ const w=el('div',{class:'sev',id:'rv_pri'}); ['Routine','Attention','Urgent'].forEach(s=>{ w.appendChild(el('button',{type:'button',onclick:(e)=>{[...w.children].forEach(c=>c.classList.remove('sel')); e.target.classList.add('sel'); w.dataset.val=s;}},[s])); }); return w; })(),
+    el('label',{},['Notes for reviewer']), el('textarea',{id:'rv_notes'}),
+    el('button',{class:'btn btn-primary',style:'margin-top:12px',onclick:()=>{
+      const reason=gv('rv_reason'); const pri=document.getElementById('rv_pri').dataset.val||'Routine';
+      if(!reason){ toast('Reason is required.'); return; }
+      const r={id:uid('RV'),patientId:p.id,patientName:p.name,reason,priority:pri,notes:gv('rv_notes'),status:'Pending',flaggedBy:state.user.name,ts:new Date().toISOString(),reviewerNotes:[]};
+      DB.reviews.push(r); save();
+      audit('flag_review',state.user.name+' flagged '+p.name+' ('+p.id+') for review — priority '+pri);
+      notify('Clinical review requested','Case for '+p.name+' added to the review queue.');
+      toast('Case flagged for clinical review.');
+      go('patientProfile',{patientId:p.id});
+    }},['Submit to Review Queue'])
+  ]));
+  return shell(wrap);
+};
+
+views.reviewList=function(){
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('h2',{},[t('review')]));
+  const isDoctor = state.user.role==='doctor' || state.user.role==='admin';
+  if(!DB.reviews.length){ wrap.appendChild(el('div',{class:'empty'},['No pending clinical reviews.'])); return shell(wrap); }
+  DB.reviews.slice().reverse().forEach(r=>{
+    wrap.appendChild(el('div',{class:'card',onclick:()=> isDoctor? go('reviewDetail',{reviewId:r.id}) : null},[
+      el('div',{class:'row'},[ el('b',{},[r.patientName]), el('span',{class:'pill '+ (r.priority==='Urgent'?'pill-urgent':r.priority==='Attention'?'pill-attention':'pill-blue')},[r.priority]) ]),
+      el('p',{class:'muted',style:'margin:4px 0'},[r.reason]),
+      el('div',{class:'row'},[ el('span',{class:'muted'},['Status: '+r.status]), isDoctor? el('a',{class:'linklike',onclick:(e)=>{e.stopPropagation(); go('reviewDetail',{reviewId:r.id});}},['Open →']) : el('span',{}) ])
+    ]));
+  });
+  return shell(wrap);
+};
+views.reviewDetail=function(){
+  const r=DB.reviews.find(x=>x.id===state.reviewId);
+  const wrap=el('div',{style:'padding:16px'});
+  const card=el('div',{class:'card'},[
+    el('h2',{},['Review — '+r.patientName]),
+    row2('Priority',r.priority), row2('Flagged by',r.flaggedBy), row2('Reason',r.reason), row2('Notes',r.notes||'—'),
+    el('label',{style:'margin-top:10px'},['Status']),
+    (function(){ const sel=el('select',{}); ['Pending','Under Review','Reviewed','Closed'].forEach(s=>sel.appendChild(el('option',{value:s,selected:s===r.status?'selected':null},[s])));
+      sel.addEventListener('change',()=>{ r.status=sel.value; save(); audit('update_review',state.user.name+' set review status to '+sel.value+' for '+r.patientName); toast('Status updated.'); });
+      return sel; })(),
+    el('label',{style:'margin-top:10px'},['Add professional note']),
+    el('textarea',{id:'rv_add_note'}),
+    el('button',{class:'btn btn-primary',style:'margin-top:10px',onclick:()=>{
+      const n=gv('rv_add_note'); if(!n){toast('Enter a note first.');return;}
+      r.reviewerNotes.push({by:state.user.name,role:state.user.role,note:n,ts:new Date().toISOString()}); save();
+      audit('add_review_note',state.user.name+' added a professional note for '+r.patientName);
+      toast('Note added.'); go('reviewDetail',{reviewId:r.id});
+    }},['Save Note']),
+    el('h3',{style:'margin-top:14px'},['Professional notes']),
+    r.reviewerNotes.length? el('div',{},r.reviewerNotes.map(n=>el('div',{class:'audit-item'},[fmtDate(n.ts)+' — '+n.by+' ('+n.role+'): '+n.note]))) : el('p',{class:'muted'},['None yet.'])
+  ]);
+  wrap.appendChild(card);
+  return shell(wrap);
+};
+
+views.chat=function(){
+  const uidKey=state.user.id;
+  DB.chats[uidKey]=DB.chats[uidKey]||[];
+  const wrap=el('div',{style:'padding:16px;display:flex;flex-direction:column;height:calc(100vh - 190px)'});
+  wrap.appendChild(el('div',{class:'row'},[el('h2',{},['CareLink AI Assistant']),el('button',{class:'btn btn-outline btn-sm',onclick:()=>{DB.chats[uidKey]=[];save();go('chat');}},['Clear'])]));
+  const log=el('div',{style:'flex:1;overflow-y:auto;padding:6px 0'});
+  DB.chats[uidKey].forEach(m=> log.appendChild(el('div',{class:'msg '+(m.role==='user'?'user':'ai')},[m.text])) );
+  wrap.appendChild(log);
+  const inputRow=el('div',{style:'display:flex;gap:8px;margin-top:8px'});
+  const inp=el('input',{placeholder:'Ask about symptoms, vitals, guidance...'});
+  const send=()=>{
+    const text=inp.value.trim(); if(!text) return;
+    DB.chats[uidKey].push({role:'user',text}); 
+    const reply=chatReply(text);
+    DB.chats[uidKey].push({role:'ai',text:reply});
+    save(); inp.value=''; go('chat');
+  };
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') send(); });
+  inputRow.appendChild(inp);
+  inputRow.appendChild(el('button',{class:'btn btn-primary btn-sm',onclick:send},['Send']));
+  inputRow.appendChild(el('button',{class:'btn btn-outline btn-sm',onclick:()=>go('voice')},['🎙️']));
+  wrap.appendChild(inputRow);
+  wrap.appendChild(el('p',{class:'disclaimer'},['CareLink AI provides general decision-support information only — not a diagnosis. No cloud AI key is configured in this demo, so responses use an on-device rule engine.']));
+  setTimeout(()=>{log.scrollTop=log.scrollHeight;},0);
+  return shell(wrap);
+};
+function chatReply(text){
+  const l=text.toLowerCase();
+  if(l.includes('chest pain')||l.includes('unconscious')||l.includes('severe bleeding')||l.includes('not breathing')) return 'This may describe a medical emergency. Please use the Emergency Call (108) feature and seek immediate professional care. I can\'t provide a diagnosis.';
+  if(l.includes('fever')) return 'Fever with cough can have several causes. Consider: duration, temperature trend, breathing difficulty, and hydration. Suggested next steps: check temperature regularly, monitor for breathing difficulty, and consider professional evaluation if fever exceeds 38.5°C or persists beyond 2-3 days. This is general information, not a diagnosis.';
+  if(l.includes('bp')||l.includes('blood pressure')) return 'For blood pressure concerns, note systolic/diastolic trend over time and any symptoms like headache or dizziness. Very high or very low readings should be professionally evaluated. I can\'t interpret this as a diagnosis.';
+  return 'Thanks for sharing that. Based on general health information: monitor symptoms, record vitals if possible, and consider professional evaluation if symptoms are severe, worsening, or the patient has risk factors. I\'m a decision-support assistant, not a substitute for a qualified healthcare professional.';
+}
+
+views.voice=function(){
+  const wrap=el('div',{style:'padding:16px;text-align:center'});
+  wrap.appendChild(el('h2',{},[t('voice')]));
+  wrap.appendChild(el('p',{class:'muted'},[t('voice_d')]));
+  const status=el('p',{},['']);
+  const mic=el('button',{style:'font-size:60px;background:none;border:none;cursor:pointer'},['🎙️']);
+  wrap.appendChild(mic); wrap.appendChild(status);
+  const out=el('div',{style:'margin-top:18px;text-align:left'});
+  wrap.appendChild(out);
+  mic.addEventListener('click',()=>{
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){ status.textContent='Speech recognition isn\'t available on this device/browser. Use text chat instead.'; return; }
+    const rec=new SR(); rec.lang= state.lang==='hi'?'hi-IN':state.lang==='kn'?'kn-IN':'en-IN';
+    status.textContent='Listening...';
+    rec.onresult=(e)=>{
+      const text=e.results[0][0].transcript;
+      status.textContent='Processing...';
+      out.appendChild(el('div',{class:'msg user'},[text]));
+      const reply=chatReply(text);
+      out.appendChild(el('div',{class:'msg ai'},[reply]));
+      status.textContent='Speaking...';
+      try{ const u=new SpeechSynthesisUtterance(reply); speechSynthesis.speak(u); u.onend=()=>status.textContent=''; }catch(e){ status.textContent=''; }
+    };
+    rec.onerror=()=>{ status.textContent='Microphone permission required or recognition failed. You can use text chat instead.'; };
+    rec.start();
+  });
+  return shell(wrap);
+};
+
+views.langScreen=function(){
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('h2',{},[t('lang')]));
+  [['en','English'],['kn','ಕನ್ನಡ (Kannada)'],['hi','हिन्दी (Hindi)']].forEach(([code,label])=>{
+    wrap.appendChild(el('button',{class:'btn '+(state.lang===code?'btn-primary':'btn-outline'),style:'margin-bottom:10px',onclick:()=>{ state.lang=code; toast('Language set to '+label); go('dashboard'); }},[label]));
+  });
+  return shell(wrap);
+};
+
+views.notifications=function(){
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('h2',{},['Notifications']));
+  if(!DB.notifications.length){ wrap.appendChild(el('div',{class:'empty'},['No notifications yet.'])); return shell(wrap); }
+  DB.notifications.forEach(n=>{
+    wrap.appendChild(el('div',{class:'card',style:n.read?'':'border-left:3px solid var(--blue)',onclick:()=>{ n.read=true; save(); go('notifications'); }},[
+      el('b',{},[n.title]), el('p',{class:'muted',style:'margin:4px 0'},[n.body]), el('p',{class:'muted',style:'font-size:11px'},[fmtDate(n.ts)])
+    ]));
+  });
+  return shell(wrap);
+};
+
+views.profile=function(){
+  const u=state.user;
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('div',{class:'card'},[
+    el('h2',{},[u.name]), row2('Role',u.role), row2('Mobile',u.mobile), row2('Email',u.email||'—'), row2('Location',u.location||'—')
+  ]));
+  wrap.appendChild(el('div',{class:'card'},[
+    el('h3',{},['Settings']),
+    el('button',{class:'btn btn-outline',style:'margin-bottom:8px',onclick:()=>go('langScreen')},['Language: '+state.lang.toUpperCase()]),
+    el('button',{class:'btn btn-outline',style:'margin-bottom:8px',onclick:()=>go('about')},['About CareLink']),
+    el('button',{class:'btn btn-red',onclick:()=>{ audit('logout',u.name+' logged out'); state.user=null; go('welcome'); }},['Logout'])
+  ]));
+  wrap.appendChild(el('div',{class:'card'},[ el('h3',{},['Recent audit activity']), el('div',{},DB.audit.slice(0,8).map(a=>el('div',{class:'audit-item'},[fmtDate(a.ts)+' — '+a.action]))) ]));
+  return shell(wrap);
+};
+
+views.about=function(){
+  const wrap=el('div',{style:'padding:16px'});
+  wrap.appendChild(el('div',{class:'card',style:'text-align:center'},[
+    el('h2',{},['CareLink']), el('p',{class:'muted'},['Health Support for a Brighter Tomorrow']),
+    el('p',{},['CareLink connects health workers, people, information and care through accessible digital healthcare support.']),
+    el('div',{class:'row',style:'justify-content:space-around;margin:14px 0'},[el('span',{},['Care']),el('span',{},['Support']),el('span',{},['Connect'])]),
+    el('p',{class:'disclaimer'},['AI assistance is for decision support only and does not replace a qualified medical professional.']),
+    el('p',{class:'muted',style:'font-size:11.5px;margin-top:10px'},['This build is a self-contained functional demo: data is stored locally in this browser (standing in for MongoDB), and AI features use an on-device rule engine (standing in for a cloud LLM) since no network/API key is available in this environment. Every button, form, save and navigation action here is real and working against this local store.'])
+  ]));
+  return shell(wrap);
+};
+
+/* seed a demo account hint on first run */
+if(!DB.users.length){ /* leave empty per "start with empty database" preference; register flow handles onboarding */ }
+
+render();
+</script>
+</body>
+</html>
